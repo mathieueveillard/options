@@ -1,32 +1,29 @@
-// @ts-ignore see https://github.com/jest-community/jest-extended#setup
-import * as matchers from "jest-extended";
-import fc from "fast-check";
+import defaultOptions from ".";
 
-expect.extend(matchers);
+type Options = {
+  color: "red" | "green" | "blue";
+  size: "small" | "medium" | "large";
+};
 
-test("A simple test (Jest)", () => {
-  expect(1 + 1).toEqual(2);
-});
+const DEFAULT_OPTIONS: Options = {
+  color: "red",
+  size: "medium",
+};
 
-test("Additional matchers (jest-extended)", () => {
-  expect([1, 0]).toIncludeSameMembers([0, 1]);
-});
-
-test("Property-based testing (fast-check)", () => {
-  type Boundaries = {
-    min: number;
-    max: number;
+test(`It should provide default values for options that are not specified,
+      while preserving options that are specified`, () => {
+  // GIVEN
+  const options: Partial<Options> = {
+    color: "green",
   };
 
-  const minmax =
-    ({ min, max }: Boundaries) =>
-    (n: number): number =>
-      Math.min(max, Math.max(min, n));
+  // WHEN
+  const actual = defaultOptions(DEFAULT_OPTIONS)(options);
 
-  fc.assert(
-    fc.property(fc.integer(), (n): boolean => {
-      const result = minmax({ min: 1, max: 10 })(n);
-      return 1 <= result && result <= 10;
-    })
-  );
+  // THEN
+  const expected: Options = {
+    color: "green",
+    size: "medium",
+  };
+  expect(actual).toEqual(expected);
 });
